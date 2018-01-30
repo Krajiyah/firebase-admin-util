@@ -1,0 +1,19 @@
+{
+  "name": "firebase-util",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krajiyah/firebase-util.git"
+  },
+  "author": "Krishnan Rajiyah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Krajiyah/firebase-util/issues"
+  },
+  "homepage": "https://github.com/Krajiyah/firebase-util#readme"
+}
