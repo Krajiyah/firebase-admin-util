@@ -1,4 +1,4 @@
-# firebase-util
+# firebase-admin-util
 
 ## Notes
 1. schema must be in following format:
