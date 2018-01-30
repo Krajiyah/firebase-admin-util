@@ -31,6 +31,7 @@ module.exports = function(firebase, schema) {
 	}
 
 	return {
+		refs: refs,
 		listenForQuery: (pathStr, param, value, objCb) => {
 			let genCb = type => {
 				return snapshot => {
