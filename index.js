@@ -9,7 +9,7 @@ module.exports = (firebase, schema) => {
   return {
     db: db(firebase, schema),
     auth: auth(firebase),
-    storage: storage(firbase),
+    storage: storage(firebase),
     fcm: fcm(firebase)
   }
 }
