@@ -115,13 +115,14 @@ module.exports = function(firebase, schema) {
 				return objs.filter(obj => keys.indexOf(obj._key) >= 0);
 			});
 		},
+		getRaw: ref => ref.once("value").then(snapshot => snapshot.val()),
+		setRaw: (ref, value) => ref.set(value),
 		doTransaction: (ref, transFunc) => {
 			return new Promise((resolve, reject) => {
 				ref.transaction(transFunc, (err, commit, snapshot) => {
 					if (err) reject(error);
 					else if (!commit) reject(new Error("transaction not committed!"));
-					else if (!snapshot.exists()) resolve(null);
-					else resolve(singleCallback(snapshot.ref.key, snapshot));
+					else resolve(snapshot.val());
 				}, true);
 			});
 		},
