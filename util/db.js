@@ -41,6 +41,17 @@ class FirebaseObject {
 			this._key = snapshot.key;
 		}
 	}
+	toString() {
+		return "FirebaseObject " + JSON.stringify({
+			_event: this._event,
+			_ref: ref.toString(),
+			_key: this._key,
+			_value: this._value
+		}, null, 2);
+	}
+	get[Symbol.toStringTag]() {
+		return "FirebaseObject";
+	}
 	getEvent() {
 		return this._event;
 	}
