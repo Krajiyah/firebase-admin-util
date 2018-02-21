@@ -7,7 +7,7 @@ const fcm = require("./util/fcm.js");
 // EXPORTS
 module.exports = (firebase, schema) => {
   return {
-    db: db(firebase, schema),
+    FirebaseObject: db(firebase, schema),
     auth: auth(firebase),
     storage: storage(firebase),
     fcm: fcm(firebase)

@@ -8,8 +8,8 @@ module.exports = function(firebase) {
             return Promise.reject(new Error("Email is taken"));
         });
     },
-    deleteAuthAccount: uid => auth.deleteUser(uid),
-    createAuthAccount: (email, password) => {
+    delete: uid => auth.deleteUser(uid),
+    create: (email, password) => {
       return auth.createUser({
         email: email,
         emailVerified: false,
@@ -17,6 +17,6 @@ module.exports = function(firebase) {
         disabled: false
       });
     },
-    updateAuthAccount: (uid, info) => auth.updateUser(uid, info)
+    update: (uid, info) => auth.updateUser(uid, info)
   }
 }
