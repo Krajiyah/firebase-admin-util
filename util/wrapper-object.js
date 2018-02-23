@@ -18,6 +18,9 @@ let _castMany = (firebaseObjects) => {
 // METHODS
 var genClass = (modelName, ref, subSchema) => {
   class WrapperObject extends FirebaseObject {
+
+    // TODO: smart ref support: i.e. user.dog is a Dog object
+
     constructor(snapshot) {
       super(ref, snapshot);
     }
