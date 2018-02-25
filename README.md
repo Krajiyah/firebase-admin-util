@@ -4,23 +4,39 @@
 1. schema must be in following format:
 ```json
 {
-  "userRef": "Users",
-  "someSubRef": "Parent/Child",
-  "someNestedRef": "Parent/Child/ChildSChild"
+  "User": {
+      "path": "Users",
+      "fields": {
+        "name": "string",
+        "image": "link",
+        "age": "number",
+        "isAdmin": "boolean",
+        "meta": "object",
+        "dogs": "array:Dogs",
+        "cat": "string:Cats"
+      }
+  },
+  "Dog": {
+    "path": "SomeNode/SomeNode/Dogs",
+    "fields": {
+      "name": "string",
+      "user": "string:Users"
+    }
+  },
+  "Cat": {
+    "path": "SomeNode/Cats",
+    "fields": {
+      "name": "string",
+      "user": "string:Users"
+    }
+  }
 }
 ```
 
-2. Model classes should look like this:
+2. Example usage:
 ```js
-const FirebaseObject = require("firebase-admin-util")(firebase, schema).FirebaseObject;
-// or import FirebaseObject some other way
-
-class Users extends FirebaseObject {
-  constructor(snapshot) {
-    super(FirebaseObject.refs.userRef, snapshot)
-  }
-  someUserLogicMethod(a, b, c) {
-    // do stuff here
-  }
-}
+const User = require("firebase-admin-util")(firebase, schema).User;
+User.getByKey("some key").then(function(user) {
+  // do stuff with User object fetched
+});
 ```
