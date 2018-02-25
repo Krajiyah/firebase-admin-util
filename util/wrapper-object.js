@@ -3,26 +3,67 @@ const util = require("./util.js");
 const FirebaseObject = require("./object.js");
 
 // HELPERS
-let _cast = (firebaseObject) => {
-  let snapshot = {
-    key: firebaseObject.getKey(),
-    val: () => firebaseObject.getValue()
-  };
-  return new WrapperObject(snapshot);
+let _genEmptyObjCb = (ref, key) => {
+  return () => {
+    var o = new FirebaseObject(ref, null);
+    o._synced = false;
+    o._key = key;
+    return o;
+  }
 }
 
-let _castMany = (firebaseObjects) => {
-  return firebaseObjects.map(o => _cast(o));
+let _genEmptyObjsCb = (ref, keys) => {
+  return () => keys.map(key => _genEmptyObjCb(ref, key)());
+}
+
+let _getProps = (firebase, subSchema) => {
+  const rootRef = firebase.database().ref();
+  var result = {};
+  Object.keys(subSchema.fields).forEach(field => {
+    let fieldType = subSchema.fields[field];
+    if (fieldType.indexOf(":") >= 0) {
+      let x = fieldType.split(":");
+      let type = x[0];
+      let ref = rootRef.child(x[1]);
+      if (type == "array") {
+        result[field] = {
+          get: _genEmptyObjsCb(ref, this._value[field])
+        };
+      } else if (type == "string") {
+        result[field] = {
+          get: _genEmptyObjCb(ref, this._value[field])
+        };
+      }
+    } else {
+      result[field] = {
+        get: function() {
+          return this._value[field];
+        },
+        set: function(x) {
+          this._value[field] = x;
+          this._synced = false;
+        }
+      };
+    }
+  });
+  return result;
 }
 
 // METHODS
-var genClass = (modelName, ref, subSchema) => {
+var genClass = (firebase, modelName, ref, subSchema) => {
   class WrapperObject extends FirebaseObject {
-
-    // TODO: smart ref support: i.e. user.dog is a Dog object
-
     constructor(snapshot) {
       super(ref, snapshot);
+    }
+    static _cast(obj) {
+      let snapshot = {
+        key: obj.getKey(),
+        val: () => obj.getValue()
+      };
+      return new WrapperObject(snapshot);
+    }
+    static _castMany(objs) {
+      return objs.map(o => WrapperObject._cast(o));
     }
     toString() {
       return _toString(modelName, this);
@@ -31,83 +72,71 @@ var genClass = (modelName, ref, subSchema) => {
       return modelName;
     }
     delete() {
-      return super().then(_cast);
+      return super().then(WrapperObject._cast);
     }
     update(fieldToVal) {
-      // TODO: validate fields with subSchema
-      super(fieldToVal).then(_cast);
+      super(fieldToVal).then(WrapperObject._cast);
     }
     listenForChanges(field, emitCb) {
-      // TODO: validate field with subSchema
-      super(field, obj => emitCb(_cast(obj)));
+      super(field, obj => emitCb(WrapperObject._cast(obj)));
     }
     static getByKey(key) {
-      return super(ref, key).then(_cast);
+      return super(ref, key).then(WrapperObject._cast);
     }
     static getAll() {
-      return super(ref).then(_castMany);
+      return super(ref).then(WrapperObject._castMany);
     }
     static getAllByKeys(keys) {
-      return super(ref, keys).then(_castMany);
+      return super(ref, keys).then(WrapperObject._castMany);
     }
     static getAllByFields(fieldToVal) {
-      // TODO: validate fields with subSchema
-      return super(ref, fieldToVal).then(_castMany);
+      return super(ref, fieldToVal).then(WrapperObject._castMany);
     }
     static getAllByBounds(fieldToBound) {
-      // TODO: validate fields with subSchema
-      return super(ref, fieldToBound).then(_castMany);
+      return super(ref, fieldToBound).then(WrapperObject._castMany);
     }
     static getAllThatStartsWith(field, value) {
-      // TODO: validate field with subSchema
-      return super(ref, value).then(_castMany);
+      return super(ref, value).then(WrapperObject._castMany);
     }
     static getKeysExist(keys) {
       return super(ref, keys);
     }
     static deleteByKey(key) {
-      return super(ref, key).then(_cast);
+      return super(ref, key).then(WrapperObject._cast);
     }
     static updateByKey(key, fieldToVal) {
-      // TODO: validate fields with subSchema
-      return super(ref, key, fieldToVal).then(_cast);
+      return super(ref, key, fieldToVal).then(WrapperObject._cast);
     }
     static createByAutoKey(fieldToVal) {
-      // TODO: validate fields with subSchema
-      return super(ref, fieldToVal).then(_cast);
+      return super(ref, fieldToVal).then(WrapperObject._cast);
     }
     static createByManualKey(key, fieldToVal) {
-      // TODO: validate fields with subSchema
-      return super(ref, key, fieldToVal).then(_cast);
+      return super(ref, key, fieldToVal).then(WrapperObject._cast);
     }
     static transaction(key, field, atomicFn) {
-      // TODO: validate field with subSchema
-      return super(ref, key, atomicFn).then(_cast);
+      return super(ref, key, atomicFn).then(WrapperObject._cast);
     }
     static transactNum(key, field, delta) {
-      // TODO: validate field with subSchema
-      return super(ref, key, field, delta).then(_cast);
+      return super(ref, key, field, delta).then(WrapperObject._cast);
     }
     static transactAppendToList(key, field, value, isUniqueList) {
-      // TODO: validate field with subSchema
-      return super(ref, key, field, value, isUniqueList).then(_cast);
+      return super(ref, key, field, value, isUniqueList)
+        .then(WrapperObject._cast);
     }
     static transactRemoveFromList(key, field, value, isUniqueList) {
-      // TODO: validate field with subSchema
-      return super(ref, key, field, value, isUniqueList).then(_cast);
+      return super(ref, key, field, value, isUniqueList)
+        .then(WrapperObject._cast);
     }
     static listenForQuery(field, value, emitCb) {
-      // TODO: validate field with subSchema
-      super(ref, field, value, obj => emitCb(_cast(obj)));
+      super(ref, field, value, obj => emitCb(WrapperObject._cast(obj)));
     }
   }
-  return eval(
-    `class ${modelName} extends WrapperObject {
-		constructor(snapshot) {
-			super(snapshot)
-		}
-	}; WrapperObject`
+  let clas = eval(
+    `class ${modelName} extends WrapperObject {}; ${modelName}`
   );
+  let props = _getProps(firebase, subSchema);
+  Object.defineProperties(clas, props);
+  return clas;
 }
 
 // EXPORTS

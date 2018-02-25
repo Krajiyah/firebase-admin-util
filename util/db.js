@@ -1,5 +1,5 @@
 // DEPENDENCIES
-const wrapper_object = require("./wrapper-object.js");
+const genClass = require("./wrapper-object.js");
 
 // METHODS
 var exportedModule = (firebase, schema) => {
@@ -8,7 +8,7 @@ var exportedModule = (firebase, schema) => {
   Object.keys(schema).forEach(modelName => {
     let subSchema = schema[modelName];
     let ref = rootRef.child(subSchema.path);
-    classes[modelName] = wrapper_object(modelName, ref, subSchema);
+    classes[modelName] = genClass(firebase, modelName, ref, subSchema);
   });
   return classes;
 }

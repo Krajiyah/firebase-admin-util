@@ -26,6 +26,7 @@ class FirebaseObject {
 	constructor(ref, snapshot) {
 		this._ref = ref;
 		this._event = "value";
+		this._synced = true;
 		if (!snapshot) {
 			this._value = null;
 			this._key = null;
@@ -52,6 +53,21 @@ class FirebaseObject {
 	}
 	getKey() {
 		return this._key;
+	}
+	isSynced() {
+		return this._synced;
+	}
+	push() {
+		return this.update(this._value).then(obj => {
+			this._synced = true;
+			return obj;
+		});
+	}
+	fetch() {
+		return FirebaseObject.getByKey(this._ref, this._key).then(obj => {
+			this._synced = true;
+			this._value = obj._value;
+		});
 	}
 	delete() {
 		return FirebaseObject.deleteByKey(this._ref, this._key);
