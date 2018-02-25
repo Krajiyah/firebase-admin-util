@@ -72,63 +72,68 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       return modelName;
     }
     delete() {
-      return super().then(WrapperObject._cast);
+      return super.delete().then(WrapperObject._cast);
     }
     update(fieldToVal) {
-      super(fieldToVal).then(WrapperObject._cast);
+      super.update(fieldToVal).then(WrapperObject._cast);
     }
     listenForChanges(field, emitCb) {
-      super(field, obj => emitCb(WrapperObject._cast(obj)));
+      super.listenForChanges(field, obj => emitCb(WrapperObject._cast(obj)));
     }
     static getByKey(key) {
-      return super(ref, key).then(WrapperObject._cast);
+      return super.getByKey(ref, key).then(WrapperObject._cast);
     }
     static getAll() {
-      return super(ref).then(WrapperObject._castMany);
+      return super.getAll(ref).then(WrapperObject._castMany);
     }
     static getAllByKeys(keys) {
-      return super(ref, keys).then(WrapperObject._castMany);
+      return super.getAllByKeys(ref, keys).then(WrapperObject._castMany);
     }
     static getAllByFields(fieldToVal) {
-      return super(ref, fieldToVal).then(WrapperObject._castMany);
+      return super.getAllByFields(ref, fieldToVal).then(WrapperObject._castMany);
     }
     static getAllByBounds(fieldToBound) {
-      return super(ref, fieldToBound).then(WrapperObject._castMany);
+      return super.getAllByBounds(ref, fieldToBound).then(WrapperObject._castMany);
     }
     static getAllThatStartsWith(field, value) {
-      return super(ref, value).then(WrapperObject._castMany);
+      return super.getAllThatStartsWith(ref, value).then(WrapperObject._castMany);
     }
     static getKeysExist(keys) {
-      return super(ref, keys);
+      return super.getKeysExist(ref, keys);
     }
     static deleteByKey(key) {
-      return super(ref, key).then(WrapperObject._cast);
+      return super.deleteByKey(ref, key).then(WrapperObject._cast);
     }
     static updateByKey(key, fieldToVal) {
-      return super(ref, key, fieldToVal).then(WrapperObject._cast);
+      return super.updateByKey(ref, key, fieldToVal).then(WrapperObject._cast);
     }
     static createByAutoKey(fieldToVal) {
-      return super(ref, fieldToVal).then(WrapperObject._cast);
+      return super.createByAutoKey(ref, fieldToVal).then(WrapperObject._cast);
     }
     static createByManualKey(key, fieldToVal) {
-      return super(ref, key, fieldToVal).then(WrapperObject._cast);
+      return super.createByManualKey(ref, key, fieldToVal)
+        .then(WrapperObject._cast);
     }
     static transaction(key, field, atomicFn) {
-      return super(ref, key, atomicFn).then(WrapperObject._cast);
+      return super.transaction(ref, key, atomicFn).then(WrapperObject._cast);
     }
     static transactNum(key, field, delta) {
-      return super(ref, key, field, delta).then(WrapperObject._cast);
+      return super.transactNum(ref, key, field, delta).then(WrapperObject._cast);
     }
     static transactAppendToList(key, field, value, isUniqueList) {
-      return super(ref, key, field, value, isUniqueList)
+      return super
+        .transactAppendToList(ref, key, field, value, isUniqueList)
         .then(WrapperObject._cast);
     }
     static transactRemoveFromList(key, field, value, isUniqueList) {
-      return super(ref, key, field, value, isUniqueList)
+      return super
+        .transactRemoveFromList(ref, key, field, value, isUniqueList)
         .then(WrapperObject._cast);
     }
     static listenForQuery(field, value, emitCb) {
-      super(ref, field, value, obj => emitCb(WrapperObject._cast(obj)));
+      super.listenForQuery(ref, field, value, obj => {
+        return emitCb(WrapperObject._cast(obj))
+      });
     }
   }
   let clas = eval(

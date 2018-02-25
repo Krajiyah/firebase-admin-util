@@ -60,7 +60,6 @@ class FirebaseObject {
 	push() {
 		return this.update(this._value).then(obj => {
 			this._synced = true;
-			return obj;
 		});
 	}
 	fetch() {
