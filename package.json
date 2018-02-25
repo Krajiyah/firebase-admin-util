@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/Krajiyah/firebase-util/issues"
   },
-  "homepage": "https://github.com/Krajiyah/firebase-util#readme"
+  "homepage": "https://github.com/Krajiyah/firebase-util#readme",
+  "dependencies": {
+    "is-url": "^1.2.2",
+    "request": "^2.83.0"
+  }
 }
