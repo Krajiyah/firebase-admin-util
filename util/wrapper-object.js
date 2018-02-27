@@ -57,21 +57,21 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     constructor(snapshot) {
       super(ref, snapshot);
     }
-    static _cast(obj) {
+    static _cast(that, obj) {
       let snapshot = {
         key: obj.getKey(),
         val: () => obj.getValue()
       };
-      return new this(snapshot);
+      return new that(snapshot);
     }
-    static _castMany(objs) {
-      return objs.map(o => this._cast(o));
+    static _castMany(that, objs) {
+      return objs.map(o => that._cast(that, o));
     }
     static _castWrap(p) {
-      return p.then(this._cast);
+      return p.then(obj => this._cast(this, obj));
     }
     static _castManyWrap(p) {
-      return p.then(this._castMany);
+      return p.then(objs => this._castMany(this, objs));
     }
     toString() {
       return _toString(modelName, this);
@@ -87,7 +87,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     }
     listenForChanges(field, emitCb) {
       super.listenForChanges(field, obj => emitCb(this.constructor._cast(
-        obj)));
+        this, obj)));
     }
     static getByKey(key) {
       return this._castWrap(super.getByKey(ref, key));
@@ -137,7 +137,8 @@ var genClass = (firebase, modelName, ref, subSchema) => {
         .transactRemoveFromList(ref, key, field, value, isUniqueList));
     }
     static listenForQuery(field, value, emitCb) {
-      super.listenForQuery(ref, field, value, obj => emitCb(this._cast(obj)));
+      super.listenForQuery(ref, field, value, obj => emitCb(this._cast(this,
+        obj)));
     }
   }
   let clas = eval(
