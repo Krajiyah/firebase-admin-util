@@ -141,12 +141,15 @@ var genClass = (firebase, modelName, ref, subSchema) => {
         obj)));
     }
   }
-  let clas = eval(
-    `class ${modelName} extends WrapperObject {}; ${modelName}`
-  );
   let props = _getProps(firebase, subSchema);
-  Object.defineProperties(clas, props);
-  return clas;
+  return eval(
+    `class ${modelName} extends WrapperObject {
+      constructor(snapshot) {
+        super(snapshot);
+        Object.defineProperties(this, props);
+      }
+    }; ${modelName}`
+  );
 }
 
 // EXPORTS
