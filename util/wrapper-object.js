@@ -62,10 +62,10 @@ var genClass = (firebase, modelName, ref, subSchema) => {
         key: obj.getKey(),
         val: () => obj.getValue()
       };
-      return new WrapperObject(snapshot);
+      return new this(snapshot);
     }
     static _castMany(objs) {
-      return objs.map(o => WrapperObject._cast(o));
+      return objs.map(o => this._cast(o));
     }
     toString() {
       return _toString(modelName, this);
@@ -74,67 +74,69 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       return modelName;
     }
     delete() {
-      return super.delete().then(WrapperObject._cast);
+      return super.delete().then(this.constructor._cast);
     }
     update(fieldToVal) {
-      super.update(fieldToVal).then(WrapperObject._cast);
+      super.update(fieldToVal).then(this.constructor._cast);
     }
     listenForChanges(field, emitCb) {
-      super.listenForChanges(field, obj => emitCb(WrapperObject._cast(obj)));
+      super.listenForChanges(field, obj => {
+        return emitCb(this.constructor._cast(obj));
+      });
     }
     static getByKey(key) {
-      return super.getByKey(ref, key).then(WrapperObject._cast);
+      return super.getByKey(ref, key).then(this._cast);
     }
     static getAll() {
-      return super.getAll(ref).then(WrapperObject._castMany);
+      return super.getAll(ref).then(this._castMany);
     }
     static getAllByKeys(keys) {
-      return super.getAllByKeys(ref, keys).then(WrapperObject._castMany);
+      return super.getAllByKeys(ref, keys).then(this._castMany);
     }
     static getAllByFields(fieldToVal) {
-      return super.getAllByFields(ref, fieldToVal).then(WrapperObject._castMany);
+      return super.getAllByFields(ref, fieldToVal).then(this._castMany);
     }
     static getAllByBounds(fieldToBound) {
-      return super.getAllByBounds(ref, fieldToBound).then(WrapperObject._castMany);
+      return super.getAllByBounds(ref, fieldToBound).then(this._castMany);
     }
     static getAllThatStartsWith(field, value) {
-      return super.getAllThatStartsWith(ref, value).then(WrapperObject._castMany);
+      return super.getAllThatStartsWith(ref, value).then(this._castMany);
     }
     static getKeysExist(keys) {
       return super.getKeysExist(ref, keys);
     }
     static deleteByKey(key) {
-      return super.deleteByKey(ref, key).then(WrapperObject._cast);
+      return super.deleteByKey(ref, key).then(this._cast);
     }
     static updateByKey(key, fieldToVal) {
-      return super.updateByKey(ref, key, fieldToVal).then(WrapperObject._cast);
+      return super.updateByKey(ref, key, fieldToVal).then(this._cast);
     }
     static createByAutoKey(fieldToVal) {
-      return super.createByAutoKey(ref, fieldToVal).then(WrapperObject._cast);
+      return super.createByAutoKey(ref, fieldToVal).then(this._cast);
     }
     static createByManualKey(key, fieldToVal) {
       return super.createByManualKey(ref, key, fieldToVal)
-        .then(WrapperObject._cast);
+        .then(this._cast);
     }
     static transaction(key, field, atomicFn) {
-      return super.transaction(ref, key, atomicFn).then(WrapperObject._cast);
+      return super.transaction(ref, key, atomicFn).then(this._cast);
     }
     static transactNum(key, field, delta) {
-      return super.transactNum(ref, key, field, delta).then(WrapperObject._cast);
+      return super.transactNum(ref, key, field, delta).then(this._cast);
     }
     static transactAppendToList(key, field, value, isUniqueList) {
       return super
         .transactAppendToList(ref, key, field, value, isUniqueList)
-        .then(WrapperObject._cast);
+        .then(this._cast);
     }
     static transactRemoveFromList(key, field, value, isUniqueList) {
       return super
         .transactRemoveFromList(ref, key, field, value, isUniqueList)
-        .then(WrapperObject._cast);
+        .then(this._cast);
     }
     static listenForQuery(field, value, emitCb) {
       super.listenForQuery(ref, field, value, obj => {
-        return emitCb(WrapperObject._cast(obj))
+        return emitCb(this._cast(obj))
       });
     }
   }
