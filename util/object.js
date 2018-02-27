@@ -58,14 +58,16 @@ class FirebaseObject {
 		return this._synced;
 	}
 	push() {
+		let that = this;
 		return this.update(this._value).then(obj => {
-			this._synced = true;
+			that._synced = true;
 		});
 	}
 	fetch() {
+		let that = this;
 		return FirebaseObject.getByKey(this._ref, this._key).then(obj => {
-			this._synced = true;
-			this._value = obj._value;
+			that._synced = true;
+			that._value = obj._value;
 		});
 	}
 	delete() {
@@ -75,10 +77,11 @@ class FirebaseObject {
 		return FirebaseObject.updateByKey(this._ref, this._key, fieldToVal);
 	}
 	listenForChanges(field, emitCb) {
+		let that = this;
 		_listenOnRef(this._ref.child(this._key), type => {
 			return snapshot => {
 				if (!field || snapshot.key == field) {
-					FirebaseObject.getByKey(this._ref, this._key).then(obj => {
+					FirebaseObject.getByKey(that._ref, that._key).then(obj => {
 						obj._event = type;
 						emitCb(obj);
 					});
