@@ -3,18 +3,14 @@ const util = require("./util.js");
 const FirebaseObject = require("./object.js");
 
 // HELPERS
-let _genEmptyObjCb = (ref, key) => {
-  return () => {
-    var o = new FirebaseObject(ref, null);
-    o._synced = false;
-    o._key = key;
-    return o;
-  }
+let _genEmptyObj = (ref, key) => {
+  var o = new FirebaseObject(ref, null);
+  o._synced = false;
+  o._key = key;
+  return o;
 }
 
-let _genEmptyObjsCb = (ref, keys) => {
-  return () => keys.map(key => _genEmptyObjCb(ref, key)());
-}
+let _genEmptyObjs = (ref, keys) => keys.map(key => _genEmptyObj(ref, key));
 
 let _getProps = (firebase, subSchema) => {
   const rootRef = firebase.database().ref();
@@ -27,11 +23,17 @@ let _getProps = (firebase, subSchema) => {
       let ref = rootRef.child(x[1]);
       if (type == "array") {
         result[field] = {
-          get: _genEmptyObjsCb(ref, this._value[field])
+          get: () => {
+            let keys = this._value[field];
+            return _genEmptyObjs(ref, keys);
+          }
         };
       } else if (type == "string") {
         result[field] = {
-          get: _genEmptyObjCb(ref, this._value[field])
+          get: () => {
+            let key = this._value[field];
+            return _genEmptyObj(ref, key);
+          }
         };
       }
     } else {
