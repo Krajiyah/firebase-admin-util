@@ -98,7 +98,7 @@ class FirebaseObject {
 		});
 	}
 	static getAll(ref) {
-		return ref.once("value").then(_multipleConstructCb);
+		return ref.once("value").then(_multipleConstructCb(ref));
 	}
 	static getAllByKeys(ref, keys) {
 		return FirebaseObject.getAll(ref).then(objs => {
@@ -109,7 +109,7 @@ class FirebaseObject {
 		let primaryField = Object.keys(fieldToVal)[0];
 		let primaryVal = fieldToVal[primaryField];
 		return ref.orderByChild(primaryField).equalTo(primaryVal)
-			.once("value").then(_multipleConstructCb).then(objects => {
+			.once("value").then(_multipleConstructCb(ref)).then(objects => {
 				return objects.filter(object => {
 					return Object.keys(fieldToVal).reduce((bool, key) => {
 						let val = fieldToVal[key];
@@ -123,7 +123,7 @@ class FirebaseObject {
 		let primaryField = Object.keys(fieldToBound)[0];
 		let primaryBound = fieldToBound[primaryField];
 		return ref.orderByChild(primaryField).startAt(primaryBound[0])
-			.endAt(primaryBound[1]).once("value").then(_multipleConstructCb)
+			.endAt(primaryBound[1]).once("value").then(_multipleConstructCb(ref))
 			.then(objects => {
 				return objects.filter(object => {
 					return Object.keys(fieldToBound).reduce((bool, key) => {
@@ -138,7 +138,7 @@ class FirebaseObject {
 	}
 	static getAllThatStartsWith(ref, field, value) {
 		return ref.orderByChild(field).startAt(value)
-			.endAt(value + "\uf8ff").once("value").then(_multipleConstructCb);
+			.endAt(value + "\uf8ff").once("value").then(_multipleConstructCb(ref));
 	}
 	static getKeysExist(ref, keys) {
 		var exists = true;
