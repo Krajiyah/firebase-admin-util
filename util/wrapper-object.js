@@ -65,7 +65,8 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       return new this(snapshot);
     }
     static _castMany(objs) {
-      return objs.map(o => this._cast(o));
+      let that = this;
+      return objs.map(o => that._cast(o));
     }
     toString() {
       return _toString(modelName, this);
@@ -80,8 +81,9 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       super.update(fieldToVal).then(this.constructor._cast);
     }
     listenForChanges(field, emitCb) {
+      let that = this;
       super.listenForChanges(field, obj => {
-        return emitCb(this.constructor._cast(obj));
+        return emitCb(that.constructor._cast(obj));
       });
     }
     static getByKey(key) {
