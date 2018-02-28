@@ -35,6 +35,15 @@ class FirebaseObject {
 			this._key = snapshot.key;
 		}
 	}
+	json() {
+		return {
+			key: this._key,
+			value: this._value
+		}
+	}
+	static jsonAll(objs) {
+		return objs.map(obj => obj.json());
+	}
 	toString() {
 		return util.toString("FirebaseObject", this);
 	}
