@@ -125,7 +125,7 @@ class FirebaseObject {
 			.transactAppendToList(this._ref, this._key, field, value, isUniqueList)
 			.then(_genCopyCb(this));
 	}
-	static transactRemoveFromList(field, value, isUniqueList) {
+	transactRemoveFromList(field, value, isUniqueList) {
 		return FirebaseObject
 			.transactRemoveFromList(this._ref, this._key, field, value, isUniqueList)
 			.then(_genCopyCb(this));
