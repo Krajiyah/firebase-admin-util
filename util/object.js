@@ -21,6 +21,12 @@ let _listenOnRef = (ref, cb, isChild) => {
 	ref.on("child_changed", cb(isChild === true ? "child_changed" : "changed"));
 }
 
+let _genCopyCb = that => {
+	return obj => {
+		FirebaseObject._copyValues(obj, that);
+	}
+}
+
 // CLASS
 class FirebaseObject {
 	constructor(ref, snapshot) {
@@ -43,6 +49,10 @@ class FirebaseObject {
 	}
 	static jsonAll(objs) {
 		return objs.map(obj => obj.json());
+	}
+	static _copyValues(src, dest) {
+		src._value = dest._value;
+		src._synced = true;
 	}
 	toString() {
 		return util.toString("FirebaseObject", this);
@@ -73,17 +83,18 @@ class FirebaseObject {
 		});
 	}
 	fetch() {
-		let that = this;
-		return FirebaseObject.getByKey(this._ref, this._key).then(obj => {
-			that._synced = true;
-			that._value = obj._value;
-		});
+		return FirebaseObject.getByKey(this._ref, this._key).then(_genCopyCb(this));
 	}
 	delete() {
-		return FirebaseObject.deleteByKey(this._ref, this._key);
+		return FirebaseObject.deleteByKey(this._ref, this._key).then(obj => {
+			this._value = null;
+			this._synced = true;
+			return obj;
+		});
 	}
 	update(fieldToVal) {
-		return FirebaseObject.updateByKey(this._ref, this._key, fieldToVal);
+		return FirebaseObject.updateByKey(this._ref, this._key, fieldToVal)
+			.then(_genCopyCb(this));
 	}
 	listenForChanges(field, emitCb) {
 		let that = this;
@@ -101,19 +112,23 @@ class FirebaseObject {
 	listenForChanges(emitCb) {
 		this.listenForChanges(null, emitCb);
 	}
-	transaction(ref, field, atomicFn) {
-		return FirebaseObject.transaction(ref, this._key, field, atomicFn);
+	transaction(field, atomicFn) {
+		return FirebaseObject.transaction(this._ref, this._key, field, atomicFn)
+			.then(_genCopyCb(this));
 	}
-	transactNum(ref, field, delta) {
-		return FirebaseObject.transactNum(ref, this._key, field, delta);
+	transactNum(field, delta) {
+		return FirebaseObject.transactNum(this._ref, this._key, field, delta)
+			.then(_genCopyCb(this));
 	}
-	transactAppendToList(ref, field, value, isUniqueList) {
+	transactAppendToList(field, value, isUniqueList) {
 		return FirebaseObject
-			.transactAppendToList(ref, this._key, field, value, isUniqueList);
+			.transactAppendToList(this._ref, this._key, field, value, isUniqueList)
+			.then(_genCopyCb(this));
 	}
-	static transactRemoveFromList(ref, field, value, isUniqueList) {
+	static transactRemoveFromList(field, value, isUniqueList) {
 		return FirebaseObject
-			.transactRemoveFromList(ref, this._key, field, value, isUniqueList);
+			.transactRemoveFromList(this._ref, this._key, field, value, isUniqueList)
+			.then(_genCopyCb(this));
 	}
 	static getByKey(ref, key) {
 		return ref.child(key).once("value").then(snapshot => {

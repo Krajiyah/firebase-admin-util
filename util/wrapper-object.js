@@ -79,33 +79,9 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     get[Symbol.toStringTag]() {
       return modelName;
     }
-    delete() {
-      return this.constructor._castWrap(super.delete());
-    }
-    update(fieldToVal) {
-      return this.constructor._castWrap(super.update(fieldToVal));
-    }
     listenForChanges(field, emitCb) {
       super.listenForChanges(field, obj => emitCb(this.constructor._cast(
         this, obj)));
-    }
-    transaction(field, atomicFn) {
-      let p = super.transaction(this._ref, field, atomicFn);
-      return this.constructor._castWrap(p);
-    }
-    transactNum(field, delta) {
-      let p = super.transactNum(this._ref, field, delta);
-      return this.constructor._castWrap(p);
-    }
-    transactAppendToList(field, value, isUniqueList) {
-      let p = super.transactAppendToList(this._ref, field, value,
-        isUniqueList);
-      return this.constructor._castWrap(p);
-    }
-    static transactRemoveFromList(field, value, isUniqueList) {
-      let p = super.transactRemoveFromList(this._ref, field, value,
-        isUniqueList);
-      return this.constructor._castWrap(p);
     }
     static getByKey(key) {
       return this._castWrap(super.getByKey(ref, key));
