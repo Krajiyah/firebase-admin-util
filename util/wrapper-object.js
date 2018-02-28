@@ -93,16 +93,16 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       let p = super.transaction(this._ref, field, atomicFn);
       return this.constructor._castWrap(p);
     }
-    transactNum(ref, field, delta) {
+    transactNum(field, delta) {
       let p = super.transactNum(this._ref, field, delta);
       return this.constructor._castWrap(p);
     }
-    transactAppendToList(ref, field, value, isUniqueList) {
+    transactAppendToList(field, value, isUniqueList) {
       let p = super.transactAppendToList(this._ref, field, value,
         isUniqueList);
       return this.constructor._castWrap(p);
     }
-    static transactRemoveFromList(ref, field, value, isUniqueList) {
+    static transactRemoveFromList(field, value, isUniqueList) {
       let p = super.transactRemoveFromList(this._ref, field, value,
         isUniqueList);
       return this.constructor._castWrap(p);
