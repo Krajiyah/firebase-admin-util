@@ -73,6 +73,9 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     static _castManyWrap(p) {
       return p.then(objs => this._castMany(this, objs));
     }
+    static cast(obj) {
+      this._cast(this, obj);
+    }
     toString() {
       return _toString(modelName, this);
     }
