@@ -101,6 +101,20 @@ class FirebaseObject {
 	listenForChanges(emitCb) {
 		this.listenForChanges(null, emitCb);
 	}
+	transaction(ref, field, atomicFn) {
+		return FirebaseObject.transaction(ref, this._key, field, atomicFn);
+	}
+	transactNum(ref, field, delta) {
+		return FirebaseObject.transactNum(ref, this._key, field, delta);
+	}
+	transactAppendToList(ref, field, value, isUniqueList) {
+		return FirebaseObject
+			.transactAppendToList(ref, this._key, field, value, isUniqueList);
+	}
+	static transactRemoveFromList(ref, field, value, isUniqueList) {
+		return FirebaseObject
+			.transactRemoveFromList(ref, this._key, field, value, isUniqueList);
+	}
 	static getByKey(ref, key) {
 		return ref.child(key).once("value").then(snapshot => {
 			if (!snapshot.exists())
