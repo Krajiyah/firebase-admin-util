@@ -211,9 +211,11 @@ class FirebaseObject {
 			.then(() => FirebaseObject.getByKey(ref, newRef.key));
 	}
 	static createByManualKey(ref, key, fieldToVal) {
-		return FirebaseObject.getByKey(ref, key).then(() => {
-			return Promise.reject(new Error("Object with key " + key +
-				" already exists in database"));
+		return FirebaseObject.getByKey(ref, key).catch(() => null).then(obj => {
+			if (obj) {
+				return Promise.reject(new Error("Object with key " + key +
+					" already exists in database"));
+			}
 		}).then(() => {
 			fieldToVal._updated = _getUnixTS();
 			return ref.child(key).set(fieldToVal);
