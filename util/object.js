@@ -1,6 +1,11 @@
 // DEPENDENCIES
 const util = require("./util.js");
 
+// CONSTANTS
+const objNotExistErr = "Object with key does not exist";
+const objExistErr = "Object with key already exists";
+const transAbortErr = "transaction not committed!";
+
 // HELPERS
 let _getUnixTS = () => new Date().getTime();
 
@@ -19,12 +24,6 @@ let _listenOnRef = (ref, cb, isChild) => {
 	ref.on("child_removed", cb(isChild === true ? "child_removed" : "removed"));
 	ref.on("child_added", cb(isChild === true ? "child_added" : "added"));
 	ref.on("child_changed", cb(isChild === true ? "child_changed" : "changed"));
-}
-
-let _genCopyCb = that => {
-	return obj => {
-		FirebaseObject._copyValues(obj, that);
-	}
 }
 
 // CLASS
@@ -77,34 +76,30 @@ class FirebaseObject {
 		return this._synced;
 	}
 	push() {
-		let that = this;
-		return this.update(this._value).then(obj => {
-			that._synced = true;
-		});
+		this.update(this._value)
+		this._synced = true;
 	}
 	fetch() {
-		return FirebaseObject.getByKey(this._ref, this._key).then(_genCopyCb(this));
+		let obj = FirebaseObject.getByKey(this._ref, this._key);
+		FirebaseObject._copyValues(obj, this);
 	}
 	delete() {
-		return FirebaseObject.deleteByKey(this._ref, this._key).then(obj => {
-			this._value = null;
-			this._synced = true;
-			return obj;
-		});
+		let obj = FirebaseObject.deleteByKey(this._ref, this._key);
+		this._value = null;
+		this._synced = true;
 	}
 	update(fieldToVal) {
-		return FirebaseObject.updateByKey(this._ref, this._key, fieldToVal)
-			.then(_genCopyCb(this));
+		let obj = FirebaseObject.updateByKey(this._ref, this._key, fieldToVal);
+		FirebaseObject._copyValues(obj, this);
 	}
 	listenForChanges(field, emitCb) {
 		let that = this;
 		_listenOnRef(this._ref.child(this._key), type => {
 			return snapshot => {
 				if (!field || snapshot.key == field) {
-					FirebaseObject.getByKey(that._ref, that._key).then(obj => {
-						obj._event = type;
-						emitCb(obj);
-					});
+					let obj = FirebaseObject.getByKey(that._ref, that._key);
+					obj._event = type;
+					emitCb(obj);
 				}
 			}
 		}, field != null);
@@ -113,43 +108,40 @@ class FirebaseObject {
 		this.listenForChanges(null, emitCb);
 	}
 	transaction(field, atomicFn) {
-		return FirebaseObject.transaction(this._ref, this._key, field, atomicFn)
-			.then(_genCopyCb(this));
+		let obj = FirebaseObject.transaction(this._ref, this._key, field, atomicFn)
+		FirebaseObject._copyValues(obj, this);
 	}
 	transactNum(field, delta) {
-		return FirebaseObject.transactNum(this._ref, this._key, field, delta)
-			.then(_genCopyCb(this));
+		let obj = FirebaseObject.transactNum(this._ref, this._key, field, delta)
+		FirebaseObject._copyValues(obj, this);
 	}
 	transactAppendToList(field, value, isUniqueList) {
-		return FirebaseObject
+		let obj = FirebaseObject
 			.transactAppendToList(this._ref, this._key, field, value, isUniqueList)
-			.then(_genCopyCb(this));
+		FirebaseObject._copyValues(obj, this);
 	}
 	transactRemoveFromList(field, value, isUniqueList) {
-		return FirebaseObject
+		let obj = FirebaseObject
 			.transactRemoveFromList(this._ref, this._key, field, value, isUniqueList)
-			.then(_genCopyCb(this));
+		FirebaseObject._copyValues(obj, this);
 	}
 	static getByKey(ref, key) {
-		return ref.child(key).once("value").then(snapshot => {
-			if (!snapshot.exists())
-				return Promise.reject("Object with key " + key +
-					" does not exist in the database");
-			return new FirebaseObject(ref, snapshot);
-		});
+		let snapshot = await ref.child(key).once("value");
+		if (!snapshot.exists())
+			throw new Error(objNotExistErr);
+		return new FirebaseObject(ref, snapshot);
 	}
 	static getAll(ref) {
-		return ref.once("value").then(_multipleConstructCb(ref));
+		return await ref.once("value").then(_multipleConstructCb(ref));
 	}
 	static getAllByKeys(ref, keys) {
-		return FirebaseObject.getAll(ref).then(objs => {
-			return objs.filter(obj => keys.indexOf(obj._key) >= 0);
-		});
+		let objs = FirebaseObject.getAll(ref);
+		return objs.filter(obj => keys.indexOf(obj._key) >= 0);
 	}
 	static getAllByFields(ref, fieldToVal) {
 		let primaryField = Object.keys(fieldToVal)[0];
 		let primaryVal = fieldToVal[primaryField];
-		return ref.orderByChild(primaryField).equalTo(primaryVal)
+		return await ref.orderByChild(primaryField).equalTo(primaryVal)
 			.once("value").then(_multipleConstructCb(ref)).then(objects => {
 				return objects.filter(object => {
 					return Object.keys(fieldToVal).reduce((bool, key) => {
@@ -163,7 +155,7 @@ class FirebaseObject {
 	static getAllByBounds(ref, fieldToBound) {
 		let primaryField = Object.keys(fieldToBound)[0];
 		let primaryBound = fieldToBound[primaryField];
-		return ref.orderByChild(primaryField).startAt(primaryBound[0])
+		return await ref.orderByChild(primaryField).startAt(primaryBound[0])
 			.endAt(primaryBound[1]).once("value").then(_multipleConstructCb(ref))
 			.then(objects => {
 				return objects.filter(object => {
@@ -178,54 +170,45 @@ class FirebaseObject {
 			});
 	}
 	static getAllThatStartsWith(ref, field, value) {
-		return ref.orderByChild(field).startAt(value)
+		return await ref.orderByChild(field).startAt(value)
 			.endAt(value + "\uf8ff").once("value").then(_multipleConstructCb(ref));
 	}
 	static getKeysExist(ref, keys) {
-		var exists = true;
-		return Promise.all(keys.map(key => {
-			return ref.child(key).once("value").then(snapshot => {
-				if (!snapshot.exists()) exists = false;
-			});
-		})).then(() => {
-			return exists;
-		});
+		return keys.reduce((bool, key) => {
+			let snapshot = await ref.child(key).once("value");
+			return bool && snapshot.exists();
+		}, true)
 	}
 	static deleteByKey(ref, key) {
-		return FirebaseObject.getByKey(ref, key).then(obj => {
-			return ref.child(key).remove().then(() => {
-				return obj;
-			});
-		});
+		let obj = FirebaseObject.getByKey(ref, key);
+		await ref.child(key).remove();
+		return obj;
 	}
 	static updateByKey(ref, key, fieldToVal) {
-		return FirebaseObject.getByKey(ref, key).then(() => {
-			fieldToVal._updated = _getUnixTS();
-			return ref.child(key).update(fieldToVal)
-		}).then(() => FirebaseObject.getByKey(ref, key));
+		let exists = FirebaseObject.getKeysExist(ref, [key]);
+		if (!exists) throw new Error(objNotExistErr);
+		fieldToVal._updated = _getUnixTS();
+		await ref.child(key).update(fieldToVal);
+		return FirebaseObject.getByKey(ref, key);
 	}
 	static createByAutoKey(ref, fieldToVal) {
 		fieldToVal._updated = _getUnixTS();
 		let newRef = ref.push();
-		return newRef.set(fieldToVal)
-			.then(() => FirebaseObject.getByKey(ref, newRef.key));
+		await newRef.set(fieldToVal)
+		return FirebaseObject.getByKey(ref, newRef.key);
 	}
 	static createByManualKey(ref, key, fieldToVal) {
-		return FirebaseObject.getByKey(ref, key).catch(() => null).then(obj => {
-			if (obj) {
-				return Promise.reject(new Error("Object with key " + key +
-					" already exists in database"));
-			}
-		}).then(() => {
-			fieldToVal._updated = _getUnixTS();
-			return ref.child(key).set(fieldToVal);
-		}).then(() => FirebaseObject.getByKey(ref, key));
+		let exists = FirebaseObject.getKeysExist(ref, [key]);
+		if (exists) throw new Error(objExistErr);
+		fieldToVal._updated = _getUnixTS();
+		await ref.child(key).set(fieldToVal);
+		return FirebaseObject.getByKey(ref, key);
 	}
 	static transaction(ref, key, field, atomicFn) {
-		return new Promise((resolve, reject) => {
+		return await new Promise((resolve, reject) => {
 			ref.child(key).child(field).transaction(atomicFn, (err, commit, snapshot) => {
 				if (err) reject(err);
-				else if (!commit) reject(new Error("transaction not committed!"));
+				else if (!commit) reject(new Error(transAbortErr));
 				else resolve(FirebaseObject.getByKey(ref, key));
 			}, true);
 		});

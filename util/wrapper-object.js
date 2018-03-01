@@ -57,24 +57,15 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     constructor(snapshot) {
       super(ref, snapshot);
     }
-    static _cast(that, obj) {
+    static cast(obj) {
       let snapshot = {
         key: obj.getKey(),
         val: () => obj.getValue()
       };
-      return new that(snapshot);
+      return new this(snapshot);
     }
-    static _castMany(that, objs) {
-      return objs.map(o => that._cast(that, o));
-    }
-    static _castWrap(p) {
-      return p.then(obj => this._cast(this, obj));
-    }
-    static _castManyWrap(p) {
-      return p.then(objs => this._castMany(this, objs));
-    }
-    static cast(obj) {
-      this._cast(this, obj);
+    static castMany(objs) {
+      return objs.map(o => this.cast(o));
     }
     toString() {
       return _toString(modelName, this);
@@ -83,59 +74,58 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       return modelName;
     }
     listenForChanges(field, emitCb) {
-      super.listenForChanges(field, obj => emitCb(this.constructor._cast(
-        this, obj)));
+      let clas = this.constructor;
+      super.listenForChanges(field, obj => emitCb(clas.cast(obj)));
     }
     static getByKey(key) {
-      return this._castWrap(super.getByKey(ref, key));
+      return this.cast(super.getByKey(ref, key));
     }
     static getAll() {
-      return this._castManyWrap(super.getAll(ref));
+      return this.castMany(super.getAll(ref));
     }
     static getAllByKeys(keys) {
-      return this._castManyWrap(super.getAllByKeys(ref, keys));
+      return this.castMany(super.getAllByKeys(ref, keys));
     }
     static getAllByFields(fieldToVal) {
-      return this._castManyWrap(super.getAllByFields(ref, fieldToVal));
+      return this.castMany(super.getAllByFields(ref, fieldToVal));
     }
     static getAllByBounds(fieldToBound) {
-      return this._castManyWrap(super.getAllByBounds(ref, fieldToBound));
+      return this.castMany(super.getAllByBounds(ref, fieldToBound));
     }
     static getAllThatStartsWith(field, value) {
-      return this._castManyWrap(super.getAllThatStartsWith(ref, value));
+      return this.castMany(super.getAllThatStartsWith(ref, value));
     }
     static getKeysExist(keys) {
       return super.getKeysExist(ref, keys);
     }
     static deleteByKey(key) {
-      return this._castWrap(super.deleteByKey(ref, key));
+      return this.cast(super.deleteByKey(ref, key));
     }
     static updateByKey(key, fieldToVal) {
-      return this._castWrap(super.updateByKey(ref, key, fieldToVal));
+      return this.cast(super.updateByKey(ref, key, fieldToVal));
     }
     static createByAutoKey(fieldToVal) {
-      return this._castWrap(super.createByAutoKey(ref, fieldToVal));
+      return this.cast(super.createByAutoKey(ref, fieldToVal));
     }
     static createByManualKey(key, fieldToVal) {
-      return this._castWrap(super.createByManualKey(ref, key, fieldToVal));
+      return this.cast(super.createByManualKey(ref, key, fieldToVal));
     }
     static transaction(key, field, atomicFn) {
-      return this._castWrap(super.transaction(ref, key, atomicFn));
+      return this.cast(super.transaction(ref, key, atomicFn));
     }
     static transactNum(key, field, delta) {
-      return this._castWrap(super.transactNum(ref, key, field, delta));
+      return this.cast(super.transactNum(ref, key, field, delta));
     }
     static transactAppendToList(key, field, value, isUniqueList) {
-      return this._castWrap(super
+      return this.cast(super
         .transactAppendToList(ref, key, field, value, isUniqueList));
     }
     static transactRemoveFromList(key, field, value, isUniqueList) {
-      return this._castWrap(super
+      return this.cast(super
         .transactRemoveFromList(ref, key, field, value, isUniqueList));
     }
     static listenForQuery(field, value, emitCb) {
-      super.listenForQuery(ref, field, value, obj => emitCb(this._cast(this,
-        obj)));
+      super.listenForQuery(ref, field, value, obj => emitCb(this.cast(obj)));
     }
   }
   let props = _getProps(firebase, subSchema);
