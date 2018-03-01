@@ -224,7 +224,7 @@ class FirebaseObject {
 	static transaction(ref, key, field, atomicFn) {
 		return new Promise((resolve, reject) => {
 			ref.child(key).child(field).transaction(atomicFn, (err, commit, snapshot) => {
-				if (err) reject(error);
+				if (err) reject(err);
 				else if (!commit) reject(new Error("transaction not committed!"));
 				else resolve(FirebaseObject.getByKey(ref, key));
 			}, true);
