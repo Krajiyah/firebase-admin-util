@@ -9,6 +9,38 @@ const transAbortErr = "transaction not committed!";
 // HELPERS
 let _getUnixTS = () => new Date().getTime();
 
+let _getSnapshot = async(ref, key) => {
+	if (key) ref = ref.child(key);
+	return await ref.once("value");
+}
+
+let _getSnapshotByQuery = async(ref, field, value) => {
+	return await ref.orderByChild(field).equalTo(value).once("value");
+}
+
+let _getSnapshotByBound = async(ref, field, bound) => {
+	return await ref.orderByChild(field).startAt(bound[0])
+		.endAt(bound[1]).once("value");
+}
+
+let _remove = async(ref, key) => await ref.child(key).remove()
+
+let _update = async(ref, key, fieldToVal) => {
+	return await ref.child(key).update(fieldToVal);
+}
+
+let _set = async(ref, value) => await ref.set(value);
+
+let _transaction = async(ref, key, field, atomicFn) => {
+	return await new Promise((resolve, reject) => {
+		ref.child(key).child(field).transaction(atomicFn, (err, commit, snapshot) => {
+			if (err) reject(err);
+			else if (!commit) reject(new Error(transAbortErr));
+			else resolve(FirebaseObject.getByKey(ref, key));
+		}, true);
+	});
+}
+
 let _multipleConstructCb = (ref) => {
 	return snapshot => {
 		if (!snapshot.exists()) return [];
@@ -126,13 +158,14 @@ class FirebaseObject {
 		FirebaseObject._copyValues(obj, this);
 	}
 	static getByKey(ref, key) {
-		let snapshot = await ref.child(key).once("value");
+		let snapshot = _getSnapshot(ref, key);
 		if (!snapshot.exists())
 			throw new Error(objNotExistErr);
 		return new FirebaseObject(ref, snapshot);
 	}
 	static getAll(ref) {
-		return await ref.once("value").then(_multipleConstructCb(ref));
+		let snapshot = _getSnapshot(ref);
+		return _multipleConstructCb(ref)(snapshot);
 	}
 	static getAllByKeys(ref, keys) {
 		let objs = FirebaseObject.getAll(ref);
@@ -141,77 +174,68 @@ class FirebaseObject {
 	static getAllByFields(ref, fieldToVal) {
 		let primaryField = Object.keys(fieldToVal)[0];
 		let primaryVal = fieldToVal[primaryField];
-		return await ref.orderByChild(primaryField).equalTo(primaryVal)
-			.once("value").then(_multipleConstructCb(ref)).then(objects => {
-				return objects.filter(object => {
-					return Object.keys(fieldToVal).reduce((bool, key) => {
-						let val = fieldToVal[key];
-						let objVal = object._value[key];
-						return bool && objVal == val;
-					}, true);
-				});
-			});
+		let snapshot = _getSnapshotByQuery(primaryField, primaryVal);
+		let objects = _multipleConstructCb(ref)(snapshot);
+		return objects.filter(object => {
+			return Object.keys(fieldToVal).reduce((bool, key) => {
+				let val = fieldToVal[key];
+				let objVal = object._value[key];
+				return bool && objVal == val;
+			}, true);
+		});
 	}
 	static getAllByBounds(ref, fieldToBound) {
 		let primaryField = Object.keys(fieldToBound)[0];
 		let primaryBound = fieldToBound[primaryField];
-		return await ref.orderByChild(primaryField).startAt(primaryBound[0])
-			.endAt(primaryBound[1]).once("value").then(_multipleConstructCb(ref))
-			.then(objects => {
-				return objects.filter(object => {
-					return Object.keys(fieldToBound).reduce((bool, key) => {
-						let bound = fieldToBound[key];
-						let objectVal = object._value[key];
-						if (objectVal < bound[0] || objectVal > bound[1])
-							return false;
-						return true;
-					}, true);
-				});
-			});
+		let snapshot = _getSnapshotByBound(ref, primaryField, primaryBound);
+		let objs = _multipleConstructCb(ref)(snapshot);
+		return objects.filter(object => {
+			return Object.keys(fieldToBound).reduce((bool, key) => {
+				let bound = fieldToBound[key];
+				let objectVal = object._value[key];
+				if (objectVal < bound[0] || objectVal > bound[1])
+					return false;
+				return true;
+			}, true);
+		});
 	}
 	static getAllThatStartsWith(ref, field, value) {
-		return await ref.orderByChild(field).startAt(value)
-			.endAt(value + "\uf8ff").once("value").then(_multipleConstructCb(ref));
+		let snapshot = _getSnapshotByBound(ref, field, [value, value + "\uf8ff"]);
+		return _multipleConstructCb(ref)(snapshot);
 	}
 	static getKeysExist(ref, keys) {
 		return keys.reduce((bool, key) => {
-			let snapshot = await ref.child(key).once("value");
+			let snapshot = _getSnapshot(ref, key);
 			return bool && snapshot.exists();
 		}, true)
 	}
 	static deleteByKey(ref, key) {
 		let obj = FirebaseObject.getByKey(ref, key);
-		await ref.child(key).remove();
+		_remove(ref, key);
 		return obj;
 	}
 	static updateByKey(ref, key, fieldToVal) {
 		let exists = FirebaseObject.getKeysExist(ref, [key]);
 		if (!exists) throw new Error(objNotExistErr);
 		fieldToVal._updated = _getUnixTS();
-		await ref.child(key).update(fieldToVal);
+		_update(ref, key, fieldToVal);
 		return FirebaseObject.getByKey(ref, key);
 	}
 	static createByAutoKey(ref, fieldToVal) {
 		fieldToVal._updated = _getUnixTS();
 		let newRef = ref.push();
-		await newRef.set(fieldToVal)
+		_set(newRef, fieldToVal);
 		return FirebaseObject.getByKey(ref, newRef.key);
 	}
 	static createByManualKey(ref, key, fieldToVal) {
 		let exists = FirebaseObject.getKeysExist(ref, [key]);
 		if (exists) throw new Error(objExistErr);
 		fieldToVal._updated = _getUnixTS();
-		await ref.child(key).set(fieldToVal);
+		_set(ref.child(key), fieldToVal);
 		return FirebaseObject.getByKey(ref, key);
 	}
 	static transaction(ref, key, field, atomicFn) {
-		return await new Promise((resolve, reject) => {
-			ref.child(key).child(field).transaction(atomicFn, (err, commit, snapshot) => {
-				if (err) reject(err);
-				else if (!commit) reject(new Error(transAbortErr));
-				else resolve(FirebaseObject.getByKey(ref, key));
-			}, true);
-		});
+		return _transaction(ref, key, field, atomicFn);
 	}
 	static transactNum(ref, key, field, delta) {
 		return FirebaseObject.transaction(ref, key, field, (value) => {
