@@ -174,7 +174,7 @@ class FirebaseObject {
 	static getAllByFields(ref, fieldToVal) {
 		let primaryField = Object.keys(fieldToVal)[0];
 		let primaryVal = fieldToVal[primaryField];
-		let snapshot = _getSnapshotByQuery(primaryField, primaryVal);
+		let snapshot = _getSnapshotByQuery(ref, primaryField, primaryVal);
 		let objects = _multipleConstructCb(ref)(snapshot);
 		return objects.filter(object => {
 			return Object.keys(fieldToVal).reduce((bool, key) => {
