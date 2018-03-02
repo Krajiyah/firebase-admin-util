@@ -107,29 +107,29 @@ class FirebaseObject {
 	isSynced() {
 		return this._synced;
 	}
-	push() {
-		this.update(this._value)
+	async push() {
+		await this.update(this._value)
 		this._synced = true;
 	}
-	fetch() {
-		let obj = FirebaseObject.getByKey(this._ref, this._key);
+	async fetch() {
+		let obj = await FirebaseObject.getByKey(this._ref, this._key);
 		FirebaseObject._copyValues(obj, this);
 	}
-	delete() {
-		let obj = FirebaseObject.deleteByKey(this._ref, this._key);
+	async delete() {
+		let obj = await FirebaseObject.deleteByKey(this._ref, this._key);
 		this._value = null;
 		this._synced = true;
 	}
-	update(fieldToVal) {
-		let obj = FirebaseObject.updateByKey(this._ref, this._key, fieldToVal);
+	async update(fieldToVal) {
+		let obj = await FirebaseObject.updateByKey(this._ref, this._key, fieldToVal);
 		FirebaseObject._copyValues(obj, this);
 	}
 	listenForChanges(field, emitCb) {
 		let that = this;
 		_listenOnRef(this._ref.child(this._key), type => {
-			return snapshot => {
+			return async snapshot => {
 				if (!field || snapshot.key == field) {
-					let obj = FirebaseObject.getByKey(that._ref, that._key);
+					let obj = await FirebaseObject.getByKey(that._ref, that._key);
 					obj._event = type;
 					emitCb(obj);
 				}
@@ -139,42 +139,44 @@ class FirebaseObject {
 	listenForChanges(emitCb) {
 		this.listenForChanges(null, emitCb);
 	}
-	transaction(field, atomicFn) {
-		let obj = FirebaseObject.transaction(this._ref, this._key, field, atomicFn)
+	async transaction(field, atomicFn) {
+		let obj = await FirebaseObject
+			.transaction(this._ref, this._key, field, atomicFn)
 		FirebaseObject._copyValues(obj, this);
 	}
-	transactNum(field, delta) {
-		let obj = FirebaseObject.transactNum(this._ref, this._key, field, delta)
+	async transactNum(field, delta) {
+		let obj = await FirebaseObject
+			.transactNum(this._ref, this._key, field, delta)
 		FirebaseObject._copyValues(obj, this);
 	}
-	transactAppendToList(field, value, isUniqueList) {
-		let obj = FirebaseObject
+	async transactAppendToList(field, value, isUniqueList) {
+		let obj = await FirebaseObject
 			.transactAppendToList(this._ref, this._key, field, value, isUniqueList)
 		FirebaseObject._copyValues(obj, this);
 	}
-	transactRemoveFromList(field, value, isUniqueList) {
-		let obj = FirebaseObject
+	async transactRemoveFromList(field, value, isUniqueList) {
+		let obj = await FirebaseObject
 			.transactRemoveFromList(this._ref, this._key, field, value, isUniqueList)
 		FirebaseObject._copyValues(obj, this);
 	}
-	static getByKey(ref, key) {
-		let snapshot = _getSnapshot(ref, key);
+	static async getByKey(ref, key) {
+		let snapshot = await _getSnapshot(ref, key);
 		if (!snapshot.exists())
 			throw new Error(objNotExistErr);
 		return new FirebaseObject(ref, snapshot);
 	}
-	static getAll(ref) {
-		let snapshot = _getSnapshot(ref);
+	static async getAll(ref) {
+		let snapshot = await _getSnapshot(ref);
 		return _multipleConstructCb(ref)(snapshot);
 	}
-	static getAllByKeys(ref, keys) {
-		let objs = FirebaseObject.getAll(ref);
+	static async getAllByKeys(ref, keys) {
+		let objs = await FirebaseObject.getAll(ref);
 		return objs.filter(obj => keys.indexOf(obj._key) >= 0);
 	}
-	static getAllByFields(ref, fieldToVal) {
+	static async getAllByFields(ref, fieldToVal) {
 		let primaryField = Object.keys(fieldToVal)[0];
 		let primaryVal = fieldToVal[primaryField];
-		let snapshot = _getSnapshotByQuery(ref, primaryField, primaryVal);
+		let snapshot = await _getSnapshotByQuery(ref, primaryField, primaryVal);
 		let objects = _multipleConstructCb(ref)(snapshot);
 		return objects.filter(object => {
 			return Object.keys(fieldToVal).reduce((bool, key) => {
@@ -184,10 +186,10 @@ class FirebaseObject {
 			}, true);
 		});
 	}
-	static getAllByBounds(ref, fieldToBound) {
+	static async getAllByBounds(ref, fieldToBound) {
 		let primaryField = Object.keys(fieldToBound)[0];
 		let primaryBound = fieldToBound[primaryField];
-		let snapshot = _getSnapshotByBound(ref, primaryField, primaryBound);
+		let snapshot = await _getSnapshotByBound(ref, primaryField, primaryBound);
 		let objs = _multipleConstructCb(ref)(snapshot);
 		return objects.filter(object => {
 			return Object.keys(fieldToBound).reduce((bool, key) => {
@@ -199,53 +201,54 @@ class FirebaseObject {
 			}, true);
 		});
 	}
-	static getAllThatStartsWith(ref, field, value) {
-		let snapshot = _getSnapshotByBound(ref, field, [value, value + "\uf8ff"]);
+	static async getAllThatStartsWith(ref, field, value) {
+		let bound = [value, value + "\uf8ff"];
+		let snapshot = await _getSnapshotByBound(ref, field, bound);
 		return _multipleConstructCb(ref)(snapshot);
 	}
 	static getKeysExist(ref, keys) {
-		return keys.reduce((bool, key) => {
-			let snapshot = _getSnapshot(ref, key);
+		return keys.reduce(async(bool, key) => {
+			let snapshot = await _getSnapshot(ref, key);
 			return bool && snapshot.exists();
 		}, true)
 	}
-	static deleteByKey(ref, key) {
-		let obj = FirebaseObject.getByKey(ref, key);
-		_remove(ref, key);
+	static async deleteByKey(ref, key) {
+		let obj = await FirebaseObject.getByKey(ref, key);
+		await _remove(ref, key);
 		return obj;
 	}
-	static updateByKey(ref, key, fieldToVal) {
-		let exists = FirebaseObject.getKeysExist(ref, [key]);
+	static async updateByKey(ref, key, fieldToVal) {
+		let exists = await FirebaseObject.getKeysExist(ref, [key]);
 		if (!exists) throw new Error(objNotExistErr);
 		fieldToVal._updated = _getUnixTS();
-		_update(ref, key, fieldToVal);
-		return FirebaseObject.getByKey(ref, key);
+		await _update(ref, key, fieldToVal);
+		return await FirebaseObject.getByKey(ref, key);
 	}
-	static createByAutoKey(ref, fieldToVal) {
+	static async createByAutoKey(ref, fieldToVal) {
 		fieldToVal._updated = _getUnixTS();
 		let newRef = ref.push();
-		_set(newRef, fieldToVal);
-		return FirebaseObject.getByKey(ref, newRef.key);
+		await _set(newRef, fieldToVal);
+		return await FirebaseObject.getByKey(ref, newRef.key);
 	}
-	static createByManualKey(ref, key, fieldToVal) {
-		let exists = FirebaseObject.getKeysExist(ref, [key]);
+	static async createByManualKey(ref, key, fieldToVal) {
+		let exists = await FirebaseObject.getKeysExist(ref, [key]);
 		if (exists) throw new Error(objExistErr);
 		fieldToVal._updated = _getUnixTS();
-		_set(ref.child(key), fieldToVal);
-		return FirebaseObject.getByKey(ref, key);
+		await _set(ref.child(key), fieldToVal);
+		return await FirebaseObject.getByKey(ref, key);
 	}
-	static transaction(ref, key, field, atomicFn) {
-		return _transaction(ref, key, field, atomicFn);
+	static async transaction(ref, key, field, atomicFn) {
+		return await _transaction(ref, key, field, atomicFn);
 	}
-	static transactNum(ref, key, field, delta) {
-		return FirebaseObject.transaction(ref, key, field, (value) => {
+	static async transactNum(ref, key, field, delta) {
+		return await FirebaseObject.transaction(ref, key, field, (value) => {
 			value = value || 0;
 			value += delta;
 			return value;
 		});
 	}
-	static transactAppendToList(ref, key, field, value, isUniqueList) {
-		return FirebaseObject.transaction(ref, key, field, (arr) => {
+	static async transactAppendToList(ref, key, field, value, isUniqueList) {
+		return await FirebaseObject.transaction(ref, key, field, (arr) => {
 			if (isUniqueList) {
 				arr = arr || new Set();
 				arr.add(value);
@@ -257,8 +260,8 @@ class FirebaseObject {
 			return arr;
 		});
 	}
-	static transactRemoveFromList(ref, key, field, value, isUniqueList) {
-		return FirebaseObject.transaction(ref, key, field, (arr) => {
+	static async transactRemoveFromList(ref, key, field, value, isUniqueList) {
+		return await FirebaseObject.transaction(ref, key, field, (arr) => {
 			if (isUniqueList) {
 				arr = arr || new Set();
 				arr.delete(value);

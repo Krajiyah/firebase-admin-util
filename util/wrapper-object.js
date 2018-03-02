@@ -77,52 +77,66 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       let clas = this.constructor;
       super.listenForChanges(field, obj => emitCb(clas.cast(obj)));
     }
-    static getByKey(key) {
-      return this.cast(super.getByKey(ref, key));
+    static async getByKey(key) {
+      let obj = await super.getByKey(ref, key);
+      return this.cast(obj);
     }
-    static getAll() {
-      return this.castMany(super.getAll(ref));
+    static async getAll() {
+      let objs = await super.getAll(ref);
+      return this.castMany(objs);
     }
-    static getAllByKeys(keys) {
-      return this.castMany(super.getAllByKeys(ref, keys));
+    static async getAllByKeys(keys) {
+      let objs = await super.getAllByKeys(ref, keys);
+      return this.castMany(objs);
     }
-    static getAllByFields(fieldToVal) {
-      return this.castMany(super.getAllByFields(ref, fieldToVal));
+    static async getAllByFields(fieldToVal) {
+      let objs = await super.getAllByFields(ref, fieldToVal);
+      return this.castMany(objs);
     }
-    static getAllByBounds(fieldToBound) {
-      return this.castMany(super.getAllByBounds(ref, fieldToBound));
+    static async getAllByBounds(fieldToBound) {
+      let objs = await super.getAllByBounds(ref, fieldToBound);
+      return this.castMany(async);
     }
-    static getAllThatStartsWith(field, value) {
-      return this.castMany(super.getAllThatStartsWith(ref, value));
+    static async getAllThatStartsWith(field, value) {
+      let objs = await super.getAllThatStartsWith(ref, value);
+      return this.castMany(objs);
     }
-    static getKeysExist(keys) {
-      return super.getKeysExist(ref, keys);
+    static async getKeysExist(keys) {
+      return await super.getKeysExist(ref, keys);
     }
-    static deleteByKey(key) {
-      return this.cast(super.deleteByKey(ref, key));
+    static async deleteByKey(key) {
+      let obj = await super.deleteByKey(ref, key);
+      return this.cast(obj);
     }
-    static updateByKey(key, fieldToVal) {
-      return this.cast(super.updateByKey(ref, key, fieldToVal));
+    static async updateByKey(key, fieldToVal) {
+      let obj = await super.updateByKey(ref, key, fieldToVal);
+      return this.cast(obj);
     }
-    static createByAutoKey(fieldToVal) {
-      return this.cast(super.createByAutoKey(ref, fieldToVal));
+    static async createByAutoKey(fieldToVal) {
+      let obj = await super.createByAutoKey(ref, fieldToVal);
+      return this.cast(obj);
     }
-    static createByManualKey(key, fieldToVal) {
-      return this.cast(super.createByManualKey(ref, key, fieldToVal));
+    static async createByManualKey(key, fieldToVal) {
+      let obj = await super.createByManualKey(ref, key, fieldToVal);
+      return this.cast(obj);
     }
-    static transaction(key, field, atomicFn) {
-      return this.cast(super.transaction(ref, key, atomicFn));
+    static async transaction(key, field, atomicFn) {
+      let obj = await super.transaction(ref, key, atomicFn);
+      return this.cast(obj);
     }
-    static transactNum(key, field, delta) {
-      return this.cast(super.transactNum(ref, key, field, delta));
+    static async transactNum(key, field, delta) {
+      let obj = await super.transactNum(ref, key, field, delta);
+      return this.cast(obj);
     }
-    static transactAppendToList(key, field, value, isUniqueList) {
-      return this.cast(super
-        .transactAppendToList(ref, key, field, value, isUniqueList));
+    static async transactAppendToList(key, field, value, isUniqueList) {
+      let obj = await super
+        .transactAppendToList(ref, key, field, value, isUniqueList);
+      return this.cast(obj);
     }
-    static transactRemoveFromList(key, field, value, isUniqueList) {
-      return this.cast(super
-        .transactRemoveFromList(ref, key, field, value, isUniqueList));
+    static async transactRemoveFromList(key, field, value, isUniqueList) {
+      let obj = await super
+        .transactRemoveFromList(ref, key, field, value, isUniqueList);
+      return this.cast(obj);
     }
     static listenForQuery(field, value, emitCb) {
       super.listenForQuery(ref, field, value, obj => emitCb(this.cast(obj)));
