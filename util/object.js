@@ -82,8 +82,8 @@ class FirebaseObject {
 		return objs.map(obj => obj.json());
 	}
 	static _copyValues(src, dest) {
-		src._value = dest._value;
-		src._synced = true;
+		dest._value = src._value;
+		dest._synced = true;
 	}
 	toString() {
 		return util.toString("FirebaseObject", this);
