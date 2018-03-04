@@ -68,7 +68,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
       return objs.map(o => this.cast(o));
     }
     toString() {
-      return _toString(modelName, this);
+      return util.toString(modelName, this);
     }
     get[Symbol.toStringTag]() {
       return modelName;
