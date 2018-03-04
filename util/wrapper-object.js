@@ -23,14 +23,14 @@ let _getProps = (firebase, subSchema) => {
       let ref = rootRef.child(x[1]);
       if (type == "array") {
         result[field] = {
-          get: () => {
+          get: function() {
             let keys = this._value[field];
             return _genEmptyObjs(ref, keys);
           }
         };
       } else if (type == "string") {
         result[field] = {
-          get: () => {
+          get: function() {
             let key = this._value[field];
             return _genEmptyObj(ref, key);
           }
