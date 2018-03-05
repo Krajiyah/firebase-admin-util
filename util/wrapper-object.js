@@ -57,12 +57,27 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     constructor(snapshot) {
       super(ref, snapshot);
     }
-    static cast(obj) {
+    static _castByKey(key) {
+      let snapshot = {
+        key: key,
+        val: () => null
+      };
+      var o = new this(snapshot);
+      o._synced = false;
+      return o;
+    }
+    static _castByObj(obj) {
       let snapshot = {
         key: obj.getKey(),
         val: () => obj.getValue()
       };
-      return new this(snapshot);
+      var o = new this(snapshot);
+      o._synced = obj._synced === true ? true : false;
+      return o;
+    }
+    static cast(x) {
+      if (typeof(x) != "object") return this._castByKey(x);
+      return this._castByObj(x);
     }
     static castMany(objs) {
       return objs.map(o => this.cast(o));
