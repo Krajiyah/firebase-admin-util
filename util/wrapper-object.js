@@ -110,7 +110,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     }
     static async getAllByBounds(fieldToBound) {
       let objs = await super.getAllByBounds(ref, fieldToBound);
-      return this.castMany(async);
+      return this.castMany(objs);
     }
     static async getAllThatStartsWith(field, value) {
       let objs = await super.getAllThatStartsWith(ref, value);
