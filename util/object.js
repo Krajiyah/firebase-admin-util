@@ -15,12 +15,16 @@ let _getSnapshot = async(ref, key) => {
 }
 
 let _getSnapshotByQuery = async(ref, field, value) => {
-	return await ref.orderByChild(field).equalTo(value).once("value");
+	// TODO: bug with equalTo found
+	// return await ref.orderByChild(field).equalTo(value).once("value");
+	return await ref.once("value");
 }
 
 let _getSnapshotByBound = async(ref, field, bound) => {
-	return await ref.orderByChild(field).startAt(bound[0])
-		.endAt(bound[1]).once("value");
+	// TODO: possible bug with startAt and endAt
+	// return await ref.orderByChild(field).startAt(bound[0])
+	// 	.endAt(bound[1]).once("value");
+	return await ref.once("value");
 }
 
 let _remove = async(ref, key) => await ref.child(key).remove()
