@@ -194,7 +194,7 @@ class FirebaseObject {
 		let primaryField = Object.keys(fieldToBound)[0];
 		let primaryBound = fieldToBound[primaryField];
 		let snapshot = await _getSnapshotByBound(ref, primaryField, primaryBound);
-		let objs = _multipleConstructCb(ref)(snapshot);
+		let objects = _multipleConstructCb(ref)(snapshot);
 		return objects.filter(object => {
 			return Object.keys(fieldToBound).reduce((bool, key) => {
 				let bound = fieldToBound[key];
