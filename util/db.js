@@ -1,7 +1,5 @@
-// DEPENDENCIES
 const genClass = require("./wrapper-object.js");
 
-// METHODS
 var exportedModule = (firebase, schema) => {
   const rootRef = firebase.database().ref();
   const classes = {};
@@ -13,5 +11,13 @@ var exportedModule = (firebase, schema) => {
   return classes;
 }
 
-// EXPORTS
+/**
+ * DB entry point for firebase-admin-util
+ * @module db
+ */
+/**
+ * Is an object that has keys for each object class mentioned
+ * in your database schema. For example: db.User would represent
+ * User object class.
+ */
 module.exports = exportedModule;

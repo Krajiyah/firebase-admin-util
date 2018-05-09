@@ -1,4 +1,32 @@
-const util = require("./util.js");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: util/object.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: util/object.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const util = require("./util.js");
 
 const objNotExistErr = "Object with key does not exist";
 const objExistErr = "Object with key already exists";
@@ -103,7 +131,7 @@ class FirebaseObject {
 
 	/**
 	 * Package objects into easy digestable jsons
-	 * @returns {Array<JSON>}
+	 * @returns {Array&lt;JSON>}
 	 */
 	static jsonAll(objs) {
 		return objs.map(obj => obj.json());
@@ -292,7 +320,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {string} key - key of the object
-	 * @returns {Promise<boolean>}
+	 * @returns {Promise&lt;boolean>}
 	 */
 	static async exists(ref, key) {
 		let snapshot = await _getSnapshot(ref, key);
@@ -303,11 +331,11 @@ class FirebaseObject {
 	 * Check if all objects exist or not
 	 * @async
 	 * @param {object} ref - database reference
-	 * @param {Array<string>} keys - key of the object
-	 * @returns {Promise<boolean>}
+	 * @param {Array&lt;string>} keys - key of the object
+	 * @returns {Promise&lt;boolean>}
 	 */
 	static async allExists(ref, keys) {
-		for (let i = 0; i < keys.length; i++) {
+		for (let i = 0; i &lt; keys.length; i++) {
 			let key = keys[i];
 			let b = await FirebaseObject.exists(ref, key);
 			if (!b) return false;
@@ -320,7 +348,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {string} key - key of the object
-	 * @returns {Promise<FirebaseObject>} - throws error if key does not exist
+	 * @returns {Promise&lt;FirebaseObject>} - throws error if key does not exist
 	 */
 	static async getByKey(ref, key) {
 		let snapshot = await _getSnapshot(ref, key);
@@ -333,7 +361,7 @@ class FirebaseObject {
 	 * Get all objects by database reference
 	 * @async
 	 * @param {object} ref - database reference
-	 * @returns {Promise<Array<FirebaseObject>>}
+	 * @returns {Promise&lt;Array&lt;FirebaseObject>>}
 	 */
 	static async getAll(ref) {
 		let snapshot = await _getSnapshot(ref);
@@ -344,8 +372,8 @@ class FirebaseObject {
 	 * Get all objects by database reference and keys
 	 * @async
 	 * @param {object} ref - database reference
-	 * @param {Array<string>} keys - keys of objects
-	 * @returns {Promise<Array<FirebaseObject>>}
+	 * @param {Array&lt;string>} keys - keys of objects
+	 * @returns {Promise&lt;Array&lt;FirebaseObject>>}
 	 */
 	static async getAllByKeys(ref, keys) {
 		let objs = await FirebaseObject.getAll(ref);
@@ -357,7 +385,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {object} fieldToVal - field of the object mapped to value of that field
-	 * @returns {Promise<Array<FirebaseObject>>}
+	 * @returns {Promise&lt;Array&lt;FirebaseObject>>}
 	 */
 	static async getAllByFields(ref, fieldToVal) {
 		let primaryField = Object.keys(fieldToVal)[0];
@@ -368,7 +396,7 @@ class FirebaseObject {
 			return Object.keys(fieldToVal).reduce((bool, key) => {
 				let val = fieldToVal[key];
 				let objVal = object._value[key];
-				return bool && objVal == val;
+				return bool &amp;&amp; objVal == val;
 			}, true);
 		});
 	}
@@ -378,7 +406,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {object} fieldToBound - field of the object mapped to bound of that field (bound is an array with 2 items: start and end (both exclusivley))
-	 * @returns {Promise<Array<FirebaseObject>>}
+	 * @returns {Promise&lt;Array&lt;FirebaseObject>>}
 	 */
 	static async getAllByBounds(ref, fieldToBound) {
 		let primaryField = Object.keys(fieldToBound)[0];
@@ -389,7 +417,7 @@ class FirebaseObject {
 			return Object.keys(fieldToBound).reduce((bool, key) => {
 				let bound = fieldToBound[key];
 				let objectVal = object._value[key];
-				if (objectVal < bound[0] || objectVal > bound[1])
+				if (objectVal &lt; bound[0] || objectVal > bound[1])
 					return false;
 				return true;
 			}, true);
@@ -402,7 +430,7 @@ class FirebaseObject {
 	 * @param {object} ref - database reference
 	 * @param {string} field - field of the object
 	 * @param {string} value - the thing the field starts with
-	 * @returns {Promise<Array<FirebaseObject>>}
+	 * @returns {Promise&lt;Array&lt;FirebaseObject>>}
 	 */
 	static async getAllThatStartsWith(ref, field, value) {
 		let bound = [value, value + "\uf8ff"];
@@ -415,7 +443,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {string} key - key of the object
-	 * @returns {Promise<FirebaseObject>} - throws error if key does not exist
+	 * @returns {Promise&lt;FirebaseObject>} - throws error if key does not exist
 	 */
 	static async deleteByKey(ref, key) {
 		let obj = await FirebaseObject.getByKey(ref, key);
@@ -429,7 +457,7 @@ class FirebaseObject {
 	 * @param {object} ref - database reference
 	 * @param {string} key - key of the object
 	 * @param {object} fieldToVal - object with fields of the value you want to update
-	 * @returns {Promise<FirebaseObject>} - throws error if key does not exist
+	 * @returns {Promise&lt;FirebaseObject>} - throws error if key does not exist
 	 */
 	static async updateByKey(ref, key, fieldToVal) {
 		let exists = await FirebaseObject.exists(ref, key);
@@ -444,7 +472,7 @@ class FirebaseObject {
 	 * @async
 	 * @param {object} ref - database reference
 	 * @param {object} fieldToVal - field of the object mapped to value of that field
-	 * @returns {Promise<FirebaseObject>}
+	 * @returns {Promise&lt;FirebaseObject>}
 	 */
 	static async createByAutoKey(ref, fieldToVal) {
 		fieldToVal._updated = _getUnixTS();
@@ -459,7 +487,7 @@ class FirebaseObject {
 	 * @param {object} ref - database reference
 	 * @param {string} key - key of object
 	 * @param {object} fieldToVal - field of the object mapped to value of that field
-	 * @returns {Promise<FirebaseObject>} - throws error if key is taken
+	 * @returns {Promise&lt;FirebaseObject>} - throws error if key is taken
 	 */
 	static async createByManualKey(ref, key, fieldToVal) {
 		let exists = await FirebaseObject.exists(ref, key);
@@ -476,7 +504,7 @@ class FirebaseObject {
 	 * @param {string} key - key of object
 	 * @param {string} field - field you wish to commit the transaction on
 	 * @param {function} atomicFn - function that represents the transaction being done
-	 * @returns {Promise<FirebaseObject>}
+	 * @returns {Promise&lt;FirebaseObject>}
 	 */
 	static async transaction(ref, key, field, atomicFn) {
 		return await _transaction(ref, key, field, atomicFn);
@@ -489,7 +517,7 @@ class FirebaseObject {
 	 * @param {string} key - key of object
 	 * @param {string} field - field you wish to commit the transaction on
 	 * @param {number} delta - amount to change the number by
-	 * @returns {Promise<FirebaseObject>}
+	 * @returns {Promise&lt;FirebaseObject>}
 	 */
 	static async transactNum(ref, key, field, delta) {
 		return await FirebaseObject.transaction(ref, key, field, (value) => {
@@ -507,7 +535,7 @@ class FirebaseObject {
 	 * @param {string} field - field you wish to commit the transaction on
 	 * @param value - value you want to append to the array
 	 * @param {boolean} [isUniqueList] - True means its a Set, False means its a List
-	 * @returns {Promise<FirebaseObject>}
+	 * @returns {Promise&lt;FirebaseObject>}
 	 */
 	static async transactAppendToList(ref, key, field, value, isUniqueList) {
 		return await FirebaseObject.transaction(ref, key, field, (arr) => {
@@ -531,7 +559,7 @@ class FirebaseObject {
 	 * @param {string} field - field you wish to commit the transaction on
 	 * @param value - value you want to remove from the array
 	 * @param {boolean} [isUniqueList] - True means its a Set, False means its a List
-	 * @returns {Promise<FirebaseObject>}
+	 * @returns {Promise&lt;FirebaseObject>}
 	 */
 	static async transactRemoveFromList(ref, key, field, value, isUniqueList) {
 		return await FirebaseObject.transaction(ref, key, field, (arr) => {
@@ -572,3 +600,26 @@ class FirebaseObject {
 
 // EXPORTS
 module.exports = FirebaseObject;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-auth.html">auth</a></li><li><a href="module-db.html">db</a></li><li><a href="module-fcm.html">fcm</a></li><li><a href="module-index.html">index</a></li><li><a href="module-storage.html">storage</a></li></ul><h3>Classes</h3><ul><li><a href="FirebaseObject.html">FirebaseObject</a></li><li><a href="WrapperObject.html">WrapperObject</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 08 2018 22:39:37 GMT-0700 (PDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,9 +1,10 @@
 {
   "name": "firebase-admin-util",
-  "version": "4.1.0",
-  "description": "",
+  "version": "4.2.0",
+  "description": "Firebase Admin SDK utils",
   "main": "index.js",
   "scripts": {
+    "start": "rm -rf docs/* && jsdoc -d ./docs index.js util/*.js && simplehttpserver docs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

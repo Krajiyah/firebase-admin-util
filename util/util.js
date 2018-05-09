@@ -1,4 +1,3 @@
-// METHODS
 var toString = (modelName, obj) => {
   return modelName + " " + JSON.stringify({
     _event: obj._event,
@@ -8,5 +7,4 @@ var toString = (modelName, obj) => {
   }, null, 2);
 }
 
-// EXPORTS
 module.exports.toString = toString;

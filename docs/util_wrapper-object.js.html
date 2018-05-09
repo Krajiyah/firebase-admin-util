@@ -1,4 +1,32 @@
-const util = require("./util.js");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: util/wrapper-object.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: util/wrapper-object.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const util = require("./util.js");
 const FirebaseObject = require("./object.js");
 
 let _genEmptyObj = (ref, key) => {
@@ -26,7 +54,7 @@ let _getProps = (firebase, subSchema) => {
            * @memberof WrapperObject
            * @inner
            * @function get
-           * @returns {Array<FirebaseObject>}
+           * @returns {Array&lt;FirebaseObject>}
            */
           get: function() {
             let keys = this._value[field];
@@ -127,7 +155,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     /**
      * Cast inputs to custom WrapperObjects
      * @param objs - Inputs you wish to cast
-     * @returns {Array<WrapperObject>}
+     * @returns {Array&lt;WrapperObject>}
      */
     static castMany(objs) {
       return objs.map(o => this.cast(o));
@@ -169,7 +197,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Check if object exists or not
      * @async
      * @param {string} key - key of the object
-     * @returns {Promise<boolean>}
+     * @returns {Promise&lt;boolean>}
      */
     static async exists(key) {
       return await FirebaseObject.exists(ref, key);
@@ -178,8 +206,8 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     /**
      * Check if all objects exist or not
      * @async
-     * @param {Array<string>} keys - key of the object
-     * @returns {Promise<boolean>}
+     * @param {Array&lt;string>} keys - key of the object
+     * @returns {Promise&lt;boolean>}
      */
     static async allExists(keys) {
       return await FirebaseObject.allExists(ref, keys);
@@ -189,7 +217,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Get object by key
      * @async
      * @param {string} key - key of the object
-     * @returns {Promise<WrapperObject>} - throws error if key does not exist
+     * @returns {Promise&lt;WrapperObject>} - throws error if key does not exist
      */
     static async getByKey(key) {
       let obj = await super.getByKey(ref, key);
@@ -199,7 +227,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     /**
      * Get all objects
      * @async
-     * @returns {Promise<Array<WrapperObject>>}
+     * @returns {Promise&lt;Array&lt;WrapperObject>>}
      */
     static async getAll() {
       let objs = await super.getAll(ref);
@@ -209,8 +237,8 @@ var genClass = (firebase, modelName, ref, subSchema) => {
     /**
      * Get all objects by keys
      * @async
-     * @param {Array<string>} keys - keys of objects
-     * @returns {Promise<Array<WrapperObject>>}
+     * @param {Array&lt;string>} keys - keys of objects
+     * @returns {Promise&lt;Array&lt;WrapperObject>>}
      */
     static async getAllByKeys(keys) {
       let objs = await super.getAllByKeys(ref, keys);
@@ -221,7 +249,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Get all objects by values
      * @async
      * @param {object} fieldToVal - field of the object mapped to value of that field
-     * @returns {Promise<Array<WrapperObject>>}
+     * @returns {Promise&lt;Array&lt;WrapperObject>>}
      */
     static async getAllByFields(fieldToVal) {
       let objs = await super.getAllByFields(ref, fieldToVal);
@@ -232,7 +260,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Get all objects by bounds
      * @async
      * @param {object} fieldToBound - field of the object mapped to bound of that field (bound is an array with 2 items: start and end (both exclusivley))
-     * @returns {Promise<Array<WrapperObject>>}
+     * @returns {Promise&lt;Array&lt;WrapperObject>>}
      */
     static async getAllByBounds(fieldToBound) {
       let objs = await super.getAllByBounds(ref, fieldToBound);
@@ -244,7 +272,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @async
      * @param {string} field - field of the object
      * @param {string} value - the thing the field starts with
-     * @returns {Promise<Array<WrapperObject>>}
+     * @returns {Promise&lt;Array&lt;WrapperObject>>}
      */
     static async getAllThatStartsWith(field, value) {
       let objs = await super.getAllThatStartsWith(ref, value);
@@ -255,7 +283,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Delete object by key
      * @async
      * @param {string} key - key of the object
-     * @returns {Promise<WrapperObject>} - throws error if key does not exist
+     * @returns {Promise&lt;WrapperObject>} - throws error if key does not exist
      */
     static async deleteByKey(key) {
       let obj = await super.deleteByKey(ref, key);
@@ -267,7 +295,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @async
      * @param {string} key - key of the object
      * @param {object} fieldToVal - object with fields of the value you want to update
-     * @returns {Promise<WrapperObject>} - throws error if key does not exist
+     * @returns {Promise&lt;WrapperObject>} - throws error if key does not exist
      */
     static async updateByKey(key, fieldToVal) {
       let obj = await super.updateByKey(ref, key, fieldToVal);
@@ -278,7 +306,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * Create object with given value (assigns automatic key)
      * @async
      * @param {object} fieldToVal - field of the object mapped to value of that field
-     * @returns {Promise<WrapperObject>}
+     * @returns {Promise&lt;WrapperObject>}
      */
     static async createByAutoKey(fieldToVal) {
       let obj = await super.createByAutoKey(ref, fieldToVal);
@@ -290,7 +318,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @async
      * @param {string} key - key of object
      * @param {object} fieldToVal - field of the object mapped to value of that field
-     * @returns {Promise<WrapperObject>} - throws error if key is taken
+     * @returns {Promise&lt;WrapperObject>} - throws error if key is taken
      */
     static async createByManualKey(key, fieldToVal) {
       let obj = await super.createByManualKey(ref, key, fieldToVal);
@@ -303,7 +331,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @param {string} key - key of object
      * @param {string} field - field you wish to commit the transaction on
      * @param {function} atomicFn - function that represents the transaction being done
-     * @returns {Promise<WrapperObject>}
+     * @returns {Promise&lt;WrapperObject>}
      */
     static async transaction(key, field, atomicFn) {
       let obj = await super.transaction(ref, key, atomicFn);
@@ -316,7 +344,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @param {string} key - key of object
      * @param {string} field - field you wish to commit the transaction on
      * @param {number} delta - amount to change the number by
-     * @returns {Promise<WrapperObject>}
+     * @returns {Promise&lt;WrapperObject>}
      */
     static async transactNum(key, field, delta) {
       let obj = await super.transactNum(ref, key, field, delta);
@@ -330,7 +358,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @param {string} field - field you wish to commit the transaction on
      * @param value - value you want to append to the array
      * @param {boolean} [isUniqueList] - True means its a Set, False means its a List
-     * @returns {Promise<WrapperObject>}
+     * @returns {Promise&lt;WrapperObject>}
      */
     static async transactAppendToList(key, field, value, isUniqueList) {
       let obj = await super
@@ -345,7 +373,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
      * @param {string} field - field you wish to commit the transaction on
      * @param value - value you want to remove from the array
      * @param {boolean} [isUniqueList] - True means its a Set, False means its a List
-     * @returns {Promise<WrapperObject>}
+     * @returns {Promise&lt;WrapperObject>}
      */
     static async transactRemoveFromList(key, field, value, isUniqueList) {
       let obj = await super
@@ -375,3 +403,26 @@ var genClass = (firebase, modelName, ref, subSchema) => {
 }
 
 module.exports = genClass;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-auth.html">auth</a></li><li><a href="module-db.html">db</a></li><li><a href="module-fcm.html">fcm</a></li><li><a href="module-index.html">index</a></li><li><a href="module-storage.html">storage</a></li></ul><h3>Classes</h3><ul><li><a href="FirebaseObject.html">FirebaseObject</a></li><li><a href="WrapperObject.html">WrapperObject</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue May 08 2018 22:39:37 GMT-0700 (PDT)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
