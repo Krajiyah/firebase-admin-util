@@ -4,7 +4,7 @@ const objNotExistErr = "Object with key does not exist";
 const objExistErr = "Object with key already exists";
 const transAbortErr = "transaction not committed!";
 
-let _getUnixTS = () => new Date().getTime() / 1000;
+let _getUnixTS = () => Math.floor(new Date().getTime() / 1000);
 
 let _getSnapshot = async(ref, key) => {
 	if (key) ref = ref.child(key);
