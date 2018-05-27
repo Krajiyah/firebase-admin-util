@@ -36,10 +36,15 @@ module.exports = function(firebase) {
    * @returns {Promise<string>} Content in the file after the append
    */
   let appendObjToFile = async(localPath, bucketPath, obj) => {
-    await storage.bucket().file(bucketPath).download({
-      destination: localPath
-    });
-    let lines = fs.readFileSync(localPath, 'utf8').split("\n");
+    let lines;
+    try {
+      await storage.bucket().file(bucketPath).download({
+        destination: localPath
+      });
+      lines = fs.readFileSync(localPath, 'utf8').split("\n");
+    } catch (e) {
+      lines = [];
+    }
     lines.push(JSON.stringify(obj));
     let content = lines.reduce((str, line) => str + line + "\n", "");
     fs.writeFileSync(localPath, content, 'utf8');
