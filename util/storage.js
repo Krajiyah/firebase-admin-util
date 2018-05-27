@@ -48,7 +48,9 @@ module.exports = function(firebase) {
     lines.push(JSON.stringify(obj));
     let content = lines.reduce((str, line) => str + line + "\n", "");
     fs.writeFileSync(localPath, content, 'utf8');
-    await storage.bucket().file(bucketPath).upload(localPath);
+    await storage.bucket().upload(localPath, {
+      destination: bucketPath
+    });
     return content;
   }
 
