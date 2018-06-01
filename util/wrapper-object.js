@@ -364,7 +364,7 @@ var genClass = (firebase, modelName, ref, subSchema) => {
        * @param {function} emitCb - callback that triggers when changes detected
        */
       static listenForQuery(field, value, emitCb) {
-        super.listenForQuery(ref, field, value, obj => emitCb(WrapperObject.cast(
+        super.listenForQuery(ref, field, value, obj => emitCb(${modelName}.cast(
           obj)));
       }
     } ${modelName}`
