@@ -38,7 +38,7 @@ let _transaction = async(ref, key, field, atomicFn) => {
 			if (err) reject(err);
 			else if (!commit) reject(new Error(transAbortErr));
 			else resolve(FirebaseObject.getByKey(ref, key));
-		}, true);
+		}, false);
 	});
 }
 
