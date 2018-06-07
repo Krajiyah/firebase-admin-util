@@ -38,7 +38,7 @@ http://krajiyah.github.io/firebase-admin-util
 
 2. Example usage:
 ```js
-const User = require("firebase-admin-util")(firebase, schema).User;
+const User = require("firebase-admin-util")(firebase, schema).db.User;
 User.getByKey("some key").then(function(user) {
   // do stuff with User object fetched
 });
