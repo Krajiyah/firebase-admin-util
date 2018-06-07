@@ -1,5 +1,8 @@
 # firebase-admin-util
 
+## Documentation
+http://krajiyah.github.io/firebase-admin-util
+
 ## Notes
 1. schema must be in following format:
 ```json
