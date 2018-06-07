@@ -154,19 +154,21 @@ var genClass = (firebase, modelName, ref, subSchema) => {
        * @variation 1
        * @param {string} field - specific field you want to listen for
        * @param {function} emitCb - callback that triggers when changes detected
+       * @param {boolean} [once] - set to true if you want event to only fire once
        */
-      listenForChanges(field, emitCb) {
+      listenForChanges(field, emitCb, once) {
         let clas = this.constructor;
-        super.listenForChanges(field, obj => emitCb(clas.cast(obj)));
+        super.listenForChanges(field, obj => emitCb(clas.cast(obj)), once);
       }
 
       /**
        * Initializes listener for all database event types (except 'value')
        * @variation 2
        * @param {function} emitCb - callback that triggers when changes detected
+       * @param {boolean} [once] - set to true if you want event to only fire once
        */
-      listenForChanges(emitCb) {
-        this.listenForChanges(null, emitCb);
+      listenForChanges(emitCb, once) {
+        this.listenForChanges(null, emitCb, once);
       }
 
       /**
@@ -362,10 +364,11 @@ var genClass = (firebase, modelName, ref, subSchema) => {
        * @param {string} [field] - specific field you want to listen for (needed if value passed in)
        * @param [value] - value the field should be equal to (needed if field passed in)
        * @param {function} emitCb - callback that triggers when changes detected
+       * @param {boolean} [once] - set to true if you want event to only fire once
        */
-      static listenForQuery(field, value, emitCb) {
+      static listenForQuery(field, value, emitCb, once) {
         super.listenForQuery(ref, field, value, obj => emitCb(${modelName}.cast(
-          obj)));
+          obj)), once);
       }
     } ${modelName}`
   );

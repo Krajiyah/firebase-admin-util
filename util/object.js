@@ -1,4 +1,5 @@
 const util = require("./util.js");
+const Listener = require('./listener.js');
 
 const objNotExistErr = "Object with key does not exist";
 const objExistErr = "Object with key already exists";
@@ -53,10 +54,8 @@ let _multipleConstructCb = (ref) => {
 	}
 }
 
-let _listenOnRef = (ref, cb, isChild) => {
-	ref.on("child_removed", cb(isChild === true ? "child_removed" : "removed"));
-	ref.on("child_added", cb(isChild === true ? "child_added" : "added"));
-	ref.on("child_changed", cb(isChild === true ? "child_changed" : "changed"));
+let _listenOnRef = (ref, cb, isChild, once) => {
+	(new Listener(ref, isChild, cb, once)).listen();
 }
 
 /**
@@ -214,8 +213,9 @@ class FirebaseObject {
 	 * @variation 1
 	 * @param {string} field - specific field you want to listen for
 	 * @param {function} emitCb - callback that triggers when changes detected
+	 * @param {boolean} [once] - set to true if you want event to only fire once
 	 */
-	listenForChanges(field, emitCb) {
+	listenForChanges(field, emitCb, once) {
 		let that = this;
 		_listenOnRef(this._ref.child(this._key), type => {
 			return async snapshot => {
@@ -223,18 +223,21 @@ class FirebaseObject {
 					let obj = await FirebaseObject.getByKey(that._ref, that._key);
 					obj._event = type;
 					emitCb(obj);
+					return true;
 				}
+				return false;
 			}
-		}, field != null);
+		}, field != null, once);
 	}
 
 	/**
 	 * Initializes listener for all database event types (except 'value')
 	 * @variation 2
 	 * @param {function} emitCb - callback that triggers when changes detected
+	 * @param {boolean} [once] - set to true if you want event to only fire once
 	 */
-	listenForChanges(emitCb) {
-		this.listenForChanges(null, emitCb);
+	listenForChanges(emitCb, once) {
+		this.listenForChanges(null, emitCb, once);
 	}
 
 	/**
@@ -554,8 +557,9 @@ class FirebaseObject {
 	 * @param {string} [field] - specific field you want to listen for (needed if value passed in)
 	 * @param [value] - value the field should be equal to (needed if field passed in)
 	 * @param {function} emitCb - callback that triggers when changes detected
+	 * @param {boolean} [once] - set to true if you want event to only fire once
 	 */
-	static listenForQuery(ref, field, value, emitCb) {
+	static listenForQuery(ref, field, value, emitCb, once) {
 		_listenOnRef(ref, type => {
 			return snapshot => {
 				var obj = new FirebaseObject(ref, snapshot);
@@ -564,9 +568,11 @@ class FirebaseObject {
 					obj._key = snapshot.key;
 					obj._event = type;
 					emitCb(obj);
+					return true;
 				}
+				return false;
 			}
-		});
+		}, false, once);
 	}
 }
 
